@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Safety Patrol</title>
+    <meta name="theme-color" content="#1a1a1a" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay no-print">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <!-- Logo di kiri -->
+                <img src="logop.png" alt="App Logo" class="app-logo">
+
+                <!-- Title di tengah -->
+                <div class="flex-grow-1 text-center">
+                    <h4 class="app-title mb-0">Daily Safety Patrol</h4>
+                </div>
+
+                <!-- Tombol di kanan -->
+                <button class="btn btn-sm btn-outline-light" id="settings-button">
+                    <i class="bi bi-gear"></i>
+                </button>
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm">
+            <i class="fas fa-sign-out-alt me-1"></i> Logout
+        </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <div class="container my-4">
+        <div id="page-content">
+            <!-- Konten Dashboard (tampilan default) -->
+            <div id="dashboard-content">
+                <!-- Dashboard Header -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2>Dashboard</h2>
+                            <div class="d-flex">
+                                <select class="form-select form-select-sm me-2" id="dashboard-period">
+                                    <option value="today">Hari Ini</option>
+                                    <option value="week" selected>Minggu Ini</option>
+                                    <option value="month">Bulan Ini</option>
+                                    <option value="year">Tahun Ini</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline-secondary" id="refresh-dashboard">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-2" id="stats-container">
+                    <div class="col-6 mb-2">
+                        <div class="card card-stat">
+                            <div class="card-body">
+                                <h6 class="card-title">Total Patrol</h6>
+                                <h4 id="total-patrols">0</h4>
+                                <p class="card-text small" id="patrol-trend"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="card card-stat">
+                            <div class="card-body">
+                                <h6 class="card-title">Open</h6>
+                                <h4 id="open-issues">0</h4>
+                                <p class="card-text small" id="issues-trend"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="card card-stat">
+                            <div class="card-body">
+                                <h6 class="card-title">Close</h6>
+                                <h4 id="resolved-issues">0</h4>
+                                <p class="card-text small" id="resolved-trend"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="card card-stat">
+                            <div class="card-body">
+                                <h6 class="card-title">Persentase</h6>
+                                <h4 id="compliance-rate">0%</h4>
+                                <p class="card-text small" id="compliance-trend"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Masalah Prioritas</h5>
+                            </div>
+                            <div class="card-body" id="priority-issues-container">
+                                <div class="alert alert-info">
+                                    Memuat data masalah prioritas...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Konten Laporan Baru (tersembunyi secara default) -->
+            <form id="patrol-report-form" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informasi Patroli</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="report-date" class="form-label required-field">Tanggal</label>
+                                <input type="date" class="form-control" id="report-date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="report-time" class="form-label required-field">Waktu</label>
+                                <input type="time" class="form-control" id="report-time" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="report-location" class="form-label required-field">Lokasi</label>
+                                <select class="form-select" id="report-location" required>
+                                    <option value="" selected disabled>Pilih lokasi</option>
+                                    <option>Area Produksi</option>
+                                    <option>Gudang</option>
+                                    <option>Kantor</option>
+                                    <option value="other">Lainnya</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3" id="other-location-container" style="display: none;">
+                                <label for="other-location" class="form-label required-field">Nama Lokasi</label>
+                                <input type="text" class="form-control" id="other-location">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="report-notes" class="form-label">Catatan</label>
+                                <textarea class="form-control" id="report-notes" rows="3" placeholder="Catatan tambahan..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Temuan Safety</h5>
+                        <button type="button" class="btn btn-primary btn-sm" id="add-finding">
+                            <i class="bi bi-plus"></i> Tambah
+                        </button>
+                    </div>
+                    <div class="card-body" id="findings-container">
+                        <div class="alert alert-info">
+                            Belum ada temuan. Klik "Tambah" untuk memulai.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-outline-secondary me-2" id="preview-report">
+                        <i class="bi bi-eye"></i> Lihat
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Simpan
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Konten Daftar Laporan (tersembunyi secara default) -->
+            <div id="reports-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Daftar Laporan</h2>
+                    <div class="d-flex">
+                        <select class="form-select form-select-sm me-2" id="report-status-filter">
+                            <option value="all">Semua Status</option>
+                            <option value="open">Open</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Close</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="list-group mb-3" id="reports-list">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Memuat...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav aria-label="Report pagination">
+                    <ul class="pagination justify-content-center" id="report-pagination">
+                        <!-- Pagination will be generated by JS -->
+                    </ul>
+                </nav>
+            </div>
+            
+            <!-- Konten Detail Laporan (tersembunyi secara default) -->
+            <div id="report-detail-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Detail Laporan</h5>
+                    <div>
+                        <button class="btn btn-outline-secondary me-2" id="print-report">
+                            <i class="bi bi-printer"></i> Cetak
+                        </button>
+                        <button class="btn btn-outline-secondary" id="back-to-reports">
+                            <i class="bi bi-arrow-left"></i> 
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informasi Laporan</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="report-detail-info">
+                            <!-- Detail will be filled by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" id="report-findings-container">
+                    <div class="card-header">
+                        <h5 class="mb-0">Temuan Safety</h5>
+                    </div>
+                    <div class="card-body" id="report-findings-list">
+                        <!-- Findings will be filled by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="bottom-nav no-print">
+        <a href="#" class="bottom-nav-item active" id="bottom-nav-dashboard">
+            <i class="bi bi-speedometer2 nav-icon"></i>
+        </a>
+        <a href="#" class="bottom-nav-item" id="bottom-nav-new-report">
+            <i class="bi bi-plus-circle nav-icon"></i>
+        </a>
+        <a href="#" class="bottom-nav-item" id="bottom-nav-reports">
+            <i class="bi bi-list-check nav-icon"></i>
+        </a>
+    </div>
+
+    <!-- Modal Temuan -->
+    <div class="modal fade" id="findingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Temuan Safety</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="finding-form" novalidate>
+                        <div class="mb-3">
+                            <label for="finding-category" class="form-label required-field">Kategori</label>
+                            <select class="form-select" id="finding-category" required>
+                                <option value="" selected disabled>Pilih kategori</option>
+                                <option>Listrik</option>
+                                <option>Keselamatan Kebakaran</option>
+                                <option>Bahaya Slip/Trip</option>
+                                <option>APD</option>
+                                <option>Pengaman Mesin</option>
+                                <option value="other">Lainnya</option>
+                            </select>
+                            <div class="invalid-feedback">Harap pilih kategori temuan</div>
+                        </div>
+                        <div class="mb-3" id="other-category-container" style="display: none;">
+                            <label for="other-category" class="form-label required-field">Nama Kategori</label>
+                            <input type="text" class="form-control" id="other-category">
+                            <div class="invalid-feedback">Harap isi nama kategori</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="finding-priority" class="form-label required-field">Prioritas</label>
+                            <select class="form-select" id="finding-priority" required>
+                                <option value="" selected disabled>Pilih prioritas</option>
+                                <option value="high">Tinggi</option>
+                                <option value="medium">Sedang</option>
+                                <option value="low">Rendah</option>
+                            </select>
+                            <div class="invalid-feedback">Harap pilih prioritas temuan</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="finding-description" class="form-label required-field">Deskripsi</label>
+                            <textarea class="form-control" id="finding-description" rows="3" required placeholder="Deskripsikan masalah keamanan..."></textarea>
+                            <div class="invalid-feedback">Harap isi deskripsi temuan</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="finding-action" class="form-label">Tindakan yang Direkomendasikan</label>
+                            <textarea class="form-control" id="finding-action" rows="2" placeholder="Tindakan apa yang harus diambil?"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="save-finding">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pratinjau -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lihat Laporan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="preview-content">
+                    <!-- Preview content will be generated by JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" id="submit-after-preview">
+                        <i class="bi bi-save"></i> Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirm-modal-title">Konfirmasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirm-modal-body">
+                    Apakah Anda yakin?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirm-action">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Pengaturan -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pengaturan Laporan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settings-form">
+                        <div class="mb-3">
+                            <label for="company-logo" class="form-label">Logo Perusahaan</label>
+                            <input type="file" class="form-control" id="company-logo" accept="image/*">
+                            <small class="text-muted">Unggah logo perusahaan untuk ditampilkan di laporan</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reporter-name" class="form-label">Nama Pembuat Laporan</label>
+                            <input type="text" class="form-control" id="reporter-name" placeholder="Nama lengkap">
+                        </div>
+                        <div class="mb-3">
+                            <label for="supervisor-name" class="form-label">Nama Atasan</label>
+                            <input type="text" class="form-control" id="supervisor-name" placeholder="Nama atasan">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="save-settings">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    
+    <!-- Module Scripts -->
+    <script type="module" src="js/app.js"></script>
+    
+    <script>
+        // Make jsPDF available globally as fallback
+        window.jsPDF = window.jspdf.jsPDF;
+    </script>
+    </script>
+    <script>
+    const JSON_URL = "https://script.google.com/macros/s/AKfycbxREnHc45oaAIKbbPB7mWCcPMynGgQcKbSmgZPaoMZhvFB1OtXAawjV7Hss_hlBzRZHiA/exec"; 
+
+    function getQueryParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+
+    (async function() {
+      const token = getQueryParam("token");
+      if(!token) return window.location.href="https://gifary10.github.io/isr-login-access/";
+
+      try {
+        const res = await fetch(`${JSON_URL}?token=${token}`);
+        const data = await res.json();
+        if(data.valid) {
+          document.getElementById('message').textContent = "Token valid! Konten ditampilkan.";
+        } else {
+          document.getElementById('message').textContent = "Token tidak valid/expired, redirecting...";
+          setTimeout(()=>window.location.href="https://gifary10.github.io/isr-login-access/",1000);
+        }
+      } catch(err) {
+        console.error(err);
+        document.getElementById('message').textContent = "Error, redirecting...";
+        setTimeout(()=>window.location.href="https://gifary10.github.io/isr-login-access/",1000);
+      }
+    })();
+
+    // aksi logout
+    document.getElementById("logoutBtn").addEventListener("click", ()=>{
+      window.location.href = "https://gifary10.github.io/isr-login-access/";
+    });
+  </script>
+</body>
+</html>
